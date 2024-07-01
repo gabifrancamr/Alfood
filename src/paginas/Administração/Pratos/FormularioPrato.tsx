@@ -27,6 +27,8 @@ const FormularioPrato = () => {
 
   const [imagem, setImagem] = useState<File | null | string>(null);
 
+  const [imagemOriginal, setImagemOriginal] = useState<string>("");
+
   const parametros = useParams();
 
   useEffect(() => {
@@ -42,12 +44,11 @@ const FormularioPrato = () => {
           );
           const restaurante = restauranteResposta.data;
 
-          console.log(restaurante);
-
           setNomePrato(prato.nome);
           setTag(prato.tag);
           setDescricao(prato.descricao);
           setImagem(prato.imagem);
+          setImagemOriginal(prato.imagem);
           setRestaurante(restaurante.nome);
         }
 
@@ -90,7 +91,7 @@ const FormularioPrato = () => {
       formData.append("restaurante", String(restauranteSelecionado.id));
     }
 
-    if (imagem) {
+    if (imagem && imagem !== imagemOriginal) {
       formData.append("imagem", imagem);
     }
 
@@ -190,6 +191,15 @@ const FormularioPrato = () => {
             ))}
           </Select>
         </FormControl>
+
+        {typeof imagem === "string" && (
+          <Box
+            component="img"
+            sx={{ width: "30%", height: "auto", marginBottom: 2 }}
+            src={imagem}
+            alt="Imagem do prato"
+          />
+        )}
 
         <input type="file" onChange={selecionarArquivo} name="" id="" />
 
