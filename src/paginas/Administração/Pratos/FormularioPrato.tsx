@@ -66,7 +66,13 @@ const FormularioPrato = () => {
         },
         data: formData,
       })
-      .then(() => alert("Prato cadastrado com sucesso"))
+      .then(() => {
+        setNomePrato("");
+        setDescricao("");
+        setTag("");
+        setRestaurante("");
+        alert("Prato cadastrado com sucesso");
+      })
       .catch((erro) => console.log(erro));
   };
 
