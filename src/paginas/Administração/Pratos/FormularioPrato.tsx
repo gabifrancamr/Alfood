@@ -12,6 +12,8 @@ import React, { useEffect, useState } from "react";
 import http from "../../../http";
 import ITag from "../../../interfaces/ITag";
 import IRestaurante from "../../../interfaces/IRestaurante";
+import { useParams } from "react-router-dom";
+import IPrato from "../../../interfaces/IPrato";
 
 const FormularioPrato = () => {
   const [nomePrato, setNomePrato] = useState("");
@@ -23,17 +25,46 @@ const FormularioPrato = () => {
   const [restaurante, setRestaurante] = useState("");
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
 
-  const [imagem, setImagem] = useState<File | null>(null);
+  const [imagem, setImagem] = useState<File | null | string>(null);
+
+  const parametros = useParams();
 
   useEffect(() => {
-    http
-      .get<{ tags: ITag[] }>("tags/")
-      .then((resposta) => setTags(resposta.data.tags));
+    const fetchData = async () => {
+      try {
+        if (parametros.id) {
+          const pratoResposta = await http.get<IPrato>(
+            `pratos/${parametros.id}/`
+          );
+          const prato = pratoResposta.data;
+          const restauranteResposta = await http.get<IRestaurante>(
+            `restaurantes/${prato.restaurante}/`
+          );
+          const restaurante = restauranteResposta.data;
 
-    http
-      .get<IRestaurante[]>("restaurantes/")
-      .then((resposta) => setRestaurantes(resposta.data));
-  }, []);
+          console.log(restaurante);
+
+          setNomePrato(prato.nome);
+          setTag(prato.tag);
+          setDescricao(prato.descricao);
+          setImagem(prato.imagem);
+          setRestaurante(restaurante.nome);
+        }
+
+        const tagsResposta = await http.get<{ tags: ITag[] }>("tags/");
+        setTags(tagsResposta.data.tags);
+
+        const restaurantesResposta = await http.get<IRestaurante[]>(
+          "restaurantes/"
+        );
+        setRestaurantes(restaurantesResposta.data);
+      } catch (erro) {
+        console.log("Erro ao carregar dados:", erro);
+      }
+    };
+
+    fetchData();
+  }, [parametros]);
 
   const selecionarArquivo = (evento: React.ChangeEvent<HTMLInputElement>) => {
     if (evento.target.files?.length) {
@@ -51,29 +82,51 @@ const FormularioPrato = () => {
     formData.append("nome", nomePrato);
     formData.append("descricao", descricao);
     formData.append("tag", tag);
-    formData.append("restaurante", restaurante);
+
+    const restauranteSelecionado = restaurantes.find(
+      (r) => r.nome === restaurante
+    );
+    if (restauranteSelecionado) {
+      formData.append("restaurante", String(restauranteSelecionado.id));
+    }
 
     if (imagem) {
       formData.append("imagem", imagem);
     }
 
-    http
-      .request({
-        url: "pratos/",
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        data: formData,
-      })
-      .then(() => {
-        setNomePrato("");
-        setDescricao("");
-        setTag("");
-        setRestaurante("");
-        alert("Prato cadastrado com sucesso");
-      })
-      .catch((erro) => console.log(erro));
+    if (parametros.id) {
+      http
+        .request({
+          url: `pratos/${parametros.id}/`,
+          method: "PUT",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          data: formData,
+        })
+        .then(() => {
+          alert("Prato atualizado com sucesso");
+        })
+        .catch((erro) => console.log(erro));
+    } else {
+      http
+        .request({
+          url: "pratos/",
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          data: formData,
+        })
+        .then(() => {
+          setNomePrato("");
+          setDescricao("");
+          setTag("");
+          setRestaurante("");
+          alert("Prato cadastrado com sucesso");
+        })
+        .catch((erro) => console.log(erro));
+    }
   };
 
   return (
@@ -108,7 +161,7 @@ const FormularioPrato = () => {
           margin="dense"
         />
 
-        <FormControl margin="dense" fullWidth>
+        <FormControl required margin="dense" fullWidth>
           <InputLabel id="select-tag">Tag</InputLabel>
           <Select
             labelId="select-tag"
@@ -123,15 +176,15 @@ const FormularioPrato = () => {
           </Select>
         </FormControl>
 
-        <FormControl margin="dense" fullWidth>
-          <InputLabel id="select-restaurant">Restaurante</InputLabel>
+        <FormControl required margin="dense" fullWidth>
+          <InputLabel id="select-restaurante">Restaurante</InputLabel>
           <Select
-            labelId="select-restaurant"
+            labelId="select-restaurante"
             value={restaurante}
             onChange={(evento) => setRestaurante(evento.target.value)}
           >
             {restaurantes.map((restaurante) => (
-              <MenuItem key={restaurante.id} value={restaurante.id}>
+              <MenuItem key={restaurante.id} value={restaurante.nome}>
                 {restaurante.nome}
               </MenuItem>
             ))}
