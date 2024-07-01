@@ -16,10 +16,14 @@ import { Link } from "react-router-dom";
 const AdministracaoRestaurantes = () => {
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
 
-  useEffect(() => {
+  function getRestaurantes() {
     axios
       .get<IRestaurante[]>("http://localhost:8000/api/v2/restaurantes/")
       .then((resposta) => setRestaurantes(resposta.data));
+  }
+
+  useEffect(() => {
+    getRestaurantes()
   }, []);
 
   const excluir = (restauranteParaExcluir: IRestaurante) => {
@@ -28,10 +32,12 @@ const AdministracaoRestaurantes = () => {
         `http://localhost:8000/api/v2/restaurantes/${restauranteParaExcluir.id}/`
       )
       .then(() => {
-        const listaRestaurante = restaurantes.filter(
-          (restaurante) => restaurante.id !== restauranteParaExcluir.id
-        );
-        setRestaurantes([...listaRestaurante])
+        alert("Excluído com sucesso!")
+        getRestaurantes()
+        // const listaRestaurante = restaurantes.filter(
+        //   (restaurante) => restaurante.id !== restauranteParaExcluir.id
+        // );
+        // setRestaurantes([...listaRestaurante])
       });
   };
 
