@@ -4,6 +4,7 @@ import VitrineRestaurantes from "./paginas/VitrineRestaurantes";
 import AdministracaoRestaurantes from "./paginas/Administração/Restaurantes/AdministracaoRestaurantes";
 import FormularioRestaurante from "./paginas/Administração/Restaurantes/FormularioRestaurante";
 import PaginaBaseAdmin from './paginas/Administração/PaginaBaseAdmin'
+import AdministracaoPratos from "./paginas/Administração/Pratos/AdministracaoPratos";
 
 function App() {
   return (
@@ -22,6 +23,10 @@ function App() {
         <Route
           path="restaurantes/:id"
           element={<FormularioRestaurante />}
+        />
+        <Route
+          path="pratos"
+          element={<AdministracaoPratos />}
         />
       </Route>
     </Routes>
