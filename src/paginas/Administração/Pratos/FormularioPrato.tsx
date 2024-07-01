@@ -50,6 +50,13 @@ const FormularioPrato = () => {
           setImagem(prato.imagem);
           setImagemOriginal(prato.imagem);
           setRestaurante(restaurante.nome);
+        } else {
+          setNomePrato('');
+          setTag('');
+          setDescricao('');
+          setImagem(null);
+          setImagemOriginal('');
+          setRestaurante('');
         }
 
         const tagsResposta = await http.get<{ tags: ITag[] }>("tags/");
