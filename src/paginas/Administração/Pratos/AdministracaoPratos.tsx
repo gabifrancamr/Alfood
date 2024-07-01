@@ -37,6 +37,7 @@ const AdministracaoPratos = () => {
             <TableCell>Nome</TableCell>
             <TableCell>Tag</TableCell>
             <TableCell>Imagem</TableCell>
+            <TableCell>Restaurante</TableCell>
             <TableCell>Editar</TableCell>
             <TableCell>Excluir</TableCell>
           </TableRow>
@@ -51,6 +52,7 @@ const AdministracaoPratos = () => {
                   Ver imagem
                 </a>
               </TableCell>
+              <TableCell>{prato.restaurante}</TableCell>
               <TableCell>
                 [<Link to={`${prato.id}`}>editar</Link>]
               </TableCell>
